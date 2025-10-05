@@ -1,0 +1,23 @@
+# Node.jsがインストールするライブラリ群 (非常に巨大なため必須)
+node_modules/
+
+# Next.jsが開発中に使用するキャッシュやビルド成果物
+.next/
+out/
+
+# Next.jsのビルド情報
+build/
+
+# 環境変数ファイル (APIのURLなどの機密情報を含むため必須)
+.env.local
+.env*.local
+
+# npm/yarn/pnpmが生成するログファイル
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.jsが生成するその他のファイル
+.DS_Store
+*.tgz
