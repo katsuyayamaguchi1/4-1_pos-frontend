@@ -1,44 +1,33 @@
-// src/app/customers/create/confirm/page.jsx
+'use client';  // ★最初に置く
 
-export const dynamic = 'force-dynamic'; // ← プリレンダ無効（動的レンダリング）
+// SSR/プリレンダを無効化（任意：必要なら残す）
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-'use client';
-
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import OneCustomerInfoCard from '@/app/components/one_customer_info_card.jsx';
 import fetchCustomer from './fetchCustomer';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
-// useSearchParams を使う本体
+// Hooks を使う本体
 function ConfirmInner() {
   const router = useRouter();
-  const params = useSearchParams();
-  const customer_id = params.get('customer_id');
+  const searchParams = useSearchParams();
+  const customer_id = searchParams.get('customer_id');
   const [customer, setCustomer] = useState(null);
 
   useEffect(() => {
-    // id がまだ取れていない瞬間をケア
     if (!customer_id) return;
     (async () => {
-      const customerData = await fetchCustomer(customer_id);
-      setCustomer(customerData);
+      const data = await fetchCustomer(customer_id);
+      setCustomer(data);
     })();
   }, [customer_id]);
 
   return (
     <div className="card bordered bg-white border-blue-200 border-2 max-w-sm m-4">
       <div className="alert alert-success p-4 text-center">正常に作成しました</div>
-
-      {/* 取得前の一瞬はプレースホルダ表示に */}
-      {customer ? (
-        <OneCustomerInfoCard {...customer} />
-      ) : (
-        <div className="p-4">読み込み中...</div>
-      )}
-
-      {/* 相対パスより /customers の絶対パスが安全 */}
+      {customer && <OneCustomerInfoCard {...customer} />}
       <button onClick={() => router.push('/customers')}>
         <div className="btn btn-primary m-4 text-2xl">戻る</div>
       </button>
@@ -46,10 +35,10 @@ function ConfirmInner() {
   );
 }
 
-// ✅ useSearchParams を使うコンポーネントを Suspense でラップ
+// Suspense でラップ（ビルドが通りにくい場合は外してもOK）
 export default function ConfirmPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div className="m-4">読み込み中...</div>}>
       <ConfirmInner />
     </Suspense>
   );
