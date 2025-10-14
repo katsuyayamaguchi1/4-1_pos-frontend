@@ -1,5 +1,7 @@
 import OneCustomerInfoCard from "@/app/components/one_customer_info_card.jsx";
 
+export const dynamic = 'force-dynamic';
+
 async function fetchCustomer(id) {
   const res = await fetch(
     process.env.NEXT_PUBLIC_API_ENDPOINT + `/customers?customer_id=${id}`
