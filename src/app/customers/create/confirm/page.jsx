@@ -2,7 +2,6 @@
 
 // SSR/プリレンダを無効化（任意：必要なら残す）
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
