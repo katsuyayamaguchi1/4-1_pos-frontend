@@ -51,6 +51,10 @@ This is a FastAPI-Next.js repo
 - npm install
 - npm run dev
 
+cd ~/Desktop/4-1_pos-frontend
+
+
+
 ■ http://localhost:3000/customers にアクセス
 
 
