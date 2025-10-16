@@ -70,176 +70,70 @@ export default function PosPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">POSシステム</h1>
       <div className="grid grid-cols-2 gap-4">
-        {/* 左側 */}
-        <div className="border p-4 rounded-lg">
-          <h2 className="text-xl mb-2">商品入力</h2>
-          <div className="flex items-center gap-2 mb-2">
-            <input
-              type="text"
-              value={productCode}
-              onChange={(e) => setProductCode(e.target.value)}
-              className="input input-bordered w-full"
-              placeholder="1"
-            />
-            <button onClick={handleReadCode} className="btn btn-primary">
-              読み込み
-            </button>
-          </div>
-          {/* ★★★★★★★【ここから修正】★★★★★★★ */}
-          <div className="form-control mb-2">
-            <label className="label"><span className="label-text">商品名</span></label>
-            <div className="border p-2 rounded bg-gray-100 min-h-[40px]">
-              {productInfo?.PRD_NAME || '...'}
+
+        {/* 左側：商品入力エリア */}
+        {/* ★★★★★★★【修正点】flex flex-col を追加 ★★★★★★★ */}
+        <div className="border p-4 rounded-lg flex flex-col">
+          {/* ★★★★★★★【修正点】divで囲み、flex-grow を追加 ★★★★★★★ */}
+          <div className="flex-grow">
+            <h2 className="text-xl mb-2">商品入力</h2>
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                value={productCode}
+                onChange={(e) => setProductCode(e.target.value)}
+                className="input input-bordered w-full"
+                placeholder="1"
+              />
+              <button onClick={handleReadCode} className="btn btn-primary">
+                読み込み
+              </button>
+            </div>
+            <div className="form-control mb-2">
+              <label className="label"><span className="label-text">商品名</span></label>
+              <div className="border p-2 rounded bg-gray-100 min-h-[40px]">
+                {productInfo?.PRD_NAME || '...'}
+              </div>
+            </div>
+            <div className="form-control mb-4">
+              <label className="label"><span className="label-text">単価</span></label>
+              <div className="border p-2 rounded bg-gray-100 min-h-[40px]">
+                {productInfo?.PRD_PRICE ? `${productInfo.PRD_PRICE}円` : '...'}
+              </div>
             </div>
           </div>
-          <div className="form-control mb-4">
-            <label className="label"><span className="label-text">単価</span></label>
-            <div className="border p-2 rounded bg-gray-100 min-h-[40px]">
-              {productInfo?.PRD_PRICE ? `${productInfo.PRD_PRICE}円` : '...'}
-            </div>
-          </div>
-          {/* ★★★★★★★【ここまで修正】★★★★★★★ */}
           <button onClick={handleAddToList} className="btn btn-secondary w-full">
             追加
           </button>
         </div>
-        {/* 右側 */}
-        <div className="border p-4 rounded-lg">
-          <h2 className="text-xl mb-2">購入リスト</h2>
-          <div className="bg-white p-2 border rounded min-h-[200px] mb-2">
-            {purchaseList.length === 0 ? (
-              <p className="text-gray-400">商品が追加されていません</p>
-            ) : (
-              <ul>
-                {/* ★★★★★★★【ここも修正】★★★★★★★ */}
-                {purchaseList.map((item, index) => (
-                  <li key={index} className="flex justify-between">
-                    <span>{item.PRD_NAME}</span>
-                    <span>{item.PRD_PRICE}円</span>
-                  </li>
-                ))}
-                {/* ★★★★★★★【ここまで修正】★★★★★★★ */}
-              </ul>
-            )}
+
+        {/* 右側：購入リストエリア */}
+        {/* ★★★★★★★【修正点】flex flex-col を追加 ★★★★★★★ */}
+        <div className="border p-4 rounded-lg flex flex-col">
+          {/* ★★★★★★★【修正点】divで囲み、flex-grow を追加 ★★★★★★★ */}
+          <div className="flex-grow">
+            <h2 className="text-xl mb-2">購入リスト</h2>
+            <div className="bg-white p-2 border rounded min-h-[200px] mb-2">
+              {purchaseList.length === 0 ? (
+                <p className="text-gray-400">商品が追加されていません</p>
+              ) : (
+                <ul>
+                  {purchaseList.map((item, index) => (
+                    <li key={index} className="flex justify-between">
+                      <span>{item.PRD_NAME}</span>
+                      <span>{item.PRD_PRICE}円</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <button onClick={handlePurchase} className="btn btn-success w-full">
             購入
           </button>
         </div>
+
       </div>
     </div>
   );
 }
-
-
-// 以下、STEP3
-
-// src/app/page.jsx
-
-// 'use client'; // useStateを使うため、クライアントコンポーネントとして宣言
-
-// import { useState } from 'react';
-
-// export default function PosPage() {
-//   // 状態管理のためのuseStateフック
-//   const [productCode, setProductCode] = useState(''); // ①コード入力エリア
-//   const [productInfo, setProductInfo] = useState(null); // ③名称表示エリア, ④単価表示エリア
-//   const [purchaseList, setPurchaseList] = useState([]); // ⑥購入品目リスト
-
-//   // TODO: ステップ2で実装
-//   const handleReadCode = () => {
-//     console.log('読み込みボタンが押されました:', productCode);
-//     // ここでバックエンドの「商品検索API」を呼び出す
-//   };
-
-//   // TODO: ステップ3で実装
-//   const handleAddToList = () => {
-//     console.log('追加ボタンが押されました');
-//     // ここで購入リストに商品を追加する
-//   };
-  
-//   // TODO: ステップ4で実装
-//   const handlePurchase = () => {
-//     console.log('購入ボタンが押されました');
-//     // ここで購入リストをバックエンドの「購入API」に送信する
-//   };
-
-
-//   return (
-//     <div className="container mx-auto p-4">
-//       <h1 className="text-2xl font-bold mb-4">POSシステム</h1>
-      
-//       <div className="grid grid-cols-2 gap-4">
-//         {/* 左側：商品入力エリア */}
-//         <div className="border p-4 rounded-lg">
-//           <h2 className="text-xl mb-2">商品入力</h2>
-//           <div className="flex items-center gap-2 mb-2">
-//             <input
-//               type="text"
-//               value={productCode}
-//               onChange={(e) => setProductCode(e.target.value)}
-//               className="input input-bordered w-full" // ①コード入力エリア
-//               placeholder="12345678901"
-//             />
-//             <button onClick={handleReadCode} className="btn btn-primary">
-//               読み込み {/* ②読み込みボタン */}
-//             </button>
-//           </div>
-          
-//           <div className="form-control mb-2">
-//             <label className="label">
-//               <span className="label-text">商品名</span>
-//             </label>
-//             <div className="border p-2 rounded bg-gray-100 min-h-[40px]">
-//               {productInfo?.NAME || '...'} {/* ③名称表示エリア */}
-//             </div>
-//           </div>
-          
-//           <div className="form-control mb-4">
-//             <label className="label">
-//               <span className="label-text">単価</span>
-//             </label>
-//             <div className="border p-2 rounded bg-gray-100 min-h-[40px]">
-//               {productInfo?.PRICE ? `${productInfo.PRICE}円` : '...'} {/* ④単価表示エリア */}
-//             </div>
-//           </div>
-
-//           <button onClick={handleAddToList} className="btn btn-secondary w-full">
-//             追加 {/* ⑤購入リストへ追加ボタン */}
-//           </button>
-//         </div>
-
-//         {/* 右側：購入リストエリア */}
-//         <div className="border p-4 rounded-lg">
-//           <h2 className="text-xl mb-2">購入リスト</h2>
-//           <div className="bg-white p-2 border rounded min-h-[200px] mb-2">
-//             {/* ⑥購入品目リスト */}
-//             {purchaseList.length === 0 ? (
-//               <p className="text-gray-400">商品が追加されていません</p>
-//             ) : (
-//               <ul>
-//                 {purchaseList.map((item, index) => (
-//                   <li key={index} className="flex justify-between">
-//                     <span>{item.NAME}</span>
-//                     <span>{item.PRICE}円</span>
-//                   </li>
-//                 ))}
-//               </ul>
-//             )}
-//           </div>
-//           <button onClick={handlePurchase} className="btn btn-success w-full">
-//             購入 {/* ⑦購入ボタン */}
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-// // 以下、STEP３
-
-// // export default function Home() {
-// //   return <h1>Hello World</h1>
-// // }
