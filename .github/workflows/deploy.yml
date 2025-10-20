@@ -3,7 +3,6 @@ name: Build and deploy Next.js (standalone) to Azure Web App
 on:
   push:
     branches: [ "main" ]
-    # 変更があるときだけ起動
     paths:
       - "src/**"
       - "public/**"
@@ -14,18 +13,15 @@ on:
 
 concurrency:
   group: pos-frontend-azure-deploy
-  cancel-in-progress: true   # ← 二重起動で409を防ぐ
+  cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -46,35 +42,5 @@ jobs:
           # 静的アセット
           mkdir -p deploy/.next
           cp -r .next/static deploy/.next/static
-          # public も同梱（あれば）
+          # public があれば同梱
           if [ -d "public" ]; then cp -r public deploy/public; fi
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: next-standalone
-          path: deploy
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: next-standalone
-          path: deploy
-
-      - name: Zip package
-        run: |
-          cd deploy
-          zip -r ../app.zip .
-          cd ..
-
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: app-002-gen10-step3-1-node-oshima6
-          slot-name: Production
-          package: app.zip
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
