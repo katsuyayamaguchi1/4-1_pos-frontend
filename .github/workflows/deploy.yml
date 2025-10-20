@@ -62,4 +62,4 @@ jobs:
           app-name: app-002-gen10-step3-1-node-oshima6
           slot-name: Production
           package: nextjs-artifact/deploy
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7E26D6D0D8F7F942B494188F1D82436 }}
