@@ -3,21 +3,13 @@ name: Build and deploy Next.js (standalone) to Azure Web App
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - "src/**"
-      - "public/**"
-      - "package.json"
-      - "package-lock.json"
-      - "next.config.js"
-      - ".github/workflows/deploy.yml"
-
-concurrency:
-  group: pos-frontend-azure-deploy
-  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    concurrency:
+      group: pos-frontend-azure-deploy
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,29 +29,21 @@ jobs:
         run: |
           rm -rf deploy
           mkdir -p deploy
-          # standalone 本体
           cp -r .next/standalone/* deploy/
-          # 静的アセット
           mkdir -p deploy/.next
           cp -r .next/static deploy/.next/static
-          # public があれば同梱
           if [ -d "public" ]; then cp -r public deploy/public; fi
-          
-      # ==========================================================
-      # ↓↓↓ 修正箇所：認証とアーティファクトのバージョン互換性 ↓↓↓
-      # ==========================================================
-      
-      - name: Archive production artifacts
-        # GitHubのブロックを回避するため、@v4を使用
-        uses: actions/upload-artifact@v4 
-        with:
-          name: nextjs-artifact
-          path: deploy
-          
+
+      - name: Zip package
+        run: |
+          cd deploy
+          zip -r ../app.zip .
+          cd ..
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: app-002-gen10-step3-1-node-oshima6
           slot-name: Production
-          package: nextjs-artifact/deploy
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7E26D6D0D8F7F942B494188F1D82436 }}
+          package: app.zip
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
