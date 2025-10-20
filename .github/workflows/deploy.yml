@@ -60,7 +60,6 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: app-002-gen10-step3-1-node-oshima6
-          slot-name: Production # ← Production (大文字P) に合わせておきます
+          slot-name: Production
           package: nextjs-artifact/deploy
-          # ↓↓↓ publish-profile: は 'app-name:' と同じインデントレベルである必要があります ↓↓↓
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
