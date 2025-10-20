@@ -70,7 +70,7 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: app-002-gen10-step3-1-node-oshima6   # ← 実アプリ名
+          app-name: app-002-gen10-step3-1-node-oshima6
           slot-name: Production
           package: app.zip
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}

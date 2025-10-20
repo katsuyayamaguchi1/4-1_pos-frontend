@@ -51,7 +51,7 @@ This is a FastAPI-Next.js repo
 - npm install
 - npm run dev
 
-cd ~/Desktop/4-1_pos-frontend
+
 
 
 
