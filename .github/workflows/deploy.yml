@@ -3,13 +3,21 @@ name: Build and deploy Next.js (standalone) to Azure Web App
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.js"
+      - ".github/workflows/deploy.yml"
+
+concurrency:
+  group: pos-frontend-azure-deploy
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    concurrency:
-      group: pos-frontend-azure-deploy
-      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,21 +37,27 @@ jobs:
         run: |
           rm -rf deploy
           mkdir -p deploy
+          # standalone 本体を deploy フォルダにコピー
           cp -r .next/standalone/* deploy/
+          # 静的アセットを deploy フォルダにコピー
           mkdir -p deploy/.next
           cp -r .next/static deploy/.next/static
+          # public があれば同梱
           if [ -d "public" ]; then cp -r public deploy/public; fi
-
+          
       - name: Zip package
+        # app.zip を作成（デプロイで使用）
         run: |
           cd deploy
           zip -r ../app.zip .
           cd ..
-
+          
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v3 # 安定版の v3 を使用
         with:
           app-name: app-002-gen10-step3-1-node-oshima6
           slot-name: Production
+          # ↓↓↓ パッケージ名を zip で作成した app.zip に修正 ↓↓↓
           package: app.zip
+          # ↓↓↓ 認証エラー回避のため、発行プロファイルを設定 ↓↓↓
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
