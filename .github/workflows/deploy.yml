@@ -46,19 +46,20 @@ jobs:
           if [ -d "public" ]; then cp -r public deploy/public; fi
           
       # ==========================================================
-      # ↓↓↓ 追加: デプロイに必要な認証とファイルの準備 ↓↓↓
+      # ↓↓↓ 修正: actions/upload-artifact を @v4 に更新 ↓↓↓
       # ==========================================================
       
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # ★★★ v3 から v4 に修正 ★★★
         with:
           name: nextjs-artifact
           path: deploy
           
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
+        # ↓↓↓ 修正: v4 への参照エラーを避けるため、現行互換バージョンの v3 を使用 ↓↓↓
+        uses: azure/webapps-deploy@v3 
         with:
           app-name: app-002-gen10-step3-1-node-oshima6
-          # ★★★ 注意: 以下のシークレット名をGitHubのものに修正してください ★★★
+          # シークレット名は、あなたの正確な値を使用します
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7E26D6D0D8F7F942B494188F1D82436 }}
           package: $(System.DefaultWorkingDirectory)/nextjs-artifact/deploy
