@@ -2,6 +2,9 @@
 
 'use client'; 
 
+// ▼ Azureでの静的化問題を回避し、動的レンダリングを強制 ▼
+export const dynamic = 'force-dynamic'; 
+
 // 1. useCallback をインポート
 import { useState, useCallback } from 'react';
 // 2. スキャナコンポーネントをインポート
