@@ -23,11 +23,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Print ref / sha
+        run: echo "REF=$GITHUB_REF SHA=$GITHUB_SHA"
 
       - name: Install deps
         run: npm ci
@@ -44,7 +49,7 @@ jobs:
           # static / public
           cp -r .next/static deploy/.next/static
           if [ -d "public" ]; then cp -r public deploy/public; fi
-          # ★ 重要：App Service の起動用に package.json も同梱（"start": "node server.js" を想定）
+          # App Service で npm start を実行するため package.json を同梱
           cp package.json deploy/
 
       - name: Zip package
@@ -54,9 +59,18 @@ jobs:
           cd ..
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v4    # ← v4 に更新
+        uses: azure/webapps-deploy@v3   # v3 を使用
         with:
           app-name: app-002-gen10-step3-1-node-oshima6
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           package: app.zip
-          clean: true                     # ← これがポイント
+          clean: true                    # クリーン配信（残骸を掃除）
+
+      # （任意）デバッグ用：成果物を保存
+      - name: Upload app.zip artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-zip
+          path: app.zip
+
