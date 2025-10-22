@@ -1,18 +1,78 @@
-- name: Assemble deploy folder
+name: Build and deploy Next.js (standalone) to Azure Web App
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "package.json"
+      - "package-lock.json"
+      - "next.config.js"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: pos-frontend-azure-deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Print ref / sha
+        run: echo "REF=$GITHUB_REF SHA=$GITHUB_SHA"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build (Next.js standalone)
+        run: npm run build
+
+      - name: Assemble deploy folder
         run: |
+          set -e
           rm -rf deploy
-          mkdir -p deploy
-          # standalone 本体 (server.jsなど) を deploy 直下にコピー
-          cp -r .next/standalone/* deploy/
-          # public があれば deploy 直下にコピー
-          if [ -d "public" ]; then cp -r public deploy/public; fi
-          # .next フォルダ全体 (static を含む) を deploy/.next にコピー
           mkdir -p deploy/.next
+          # standalone 本体（ここだけだと .next が含まれないことがある）
+          cp -r .next/standalone/* deploy/
+          # ★ 重要：standalone 配下の「隠し .next」を明示コピー（BUILD_ID 等）
+          cp -r .next/standalone/.next deploy/.next
+          # static / public
           cp -r .next/static deploy/.next/static
-          # standalone の .next 内に必要なファイルをコピー (next.config.js が必要ない standalone の場合)
-          if [ -f ".next/standalone/.next/required-server-files.json" ]; then
-            cp -r .next/standalone/.next/* deploy/.next/
-          # next.config.js が必要な standalone の場合 (Optional)
-          elif [ -f ".next/standalone/next.config.js" ]; then
-             cp .next/standalone/next.config.js deploy/
-          fi
+          if [ -d "public" ]; then cp -r public deploy/public; fi
+          # App Service で npm start を実行するため package.json を同梱
+          cp package.json deploy/
+
+      - name: Zip package
+        run: |
+          cd deploy
+          zip -r ../app.zip .
+          cd ..
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: app-002-gen10-step3-1-node-oshima6
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: app.zip
+          clean: true
+
+      # （任意）デバッグ用：成果物を保存
+      - name: Upload app.zip artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-zip
+          path: app.zip
