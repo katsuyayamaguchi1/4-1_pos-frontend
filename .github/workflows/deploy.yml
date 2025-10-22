@@ -20,6 +20,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # ↓↓↓ ★★★ この env ブロックを追加 ★★★ ↓↓↓
+    env:
+      NEXT_PUBLIC_API_ENDPOINT: https://app-002-gen10-step3-1-py-oshima6.azurewebsites.net
+    # ↑↑↑ ★★★ 正しいバックエンドURLを指定 ★★★ ↑↑↑
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +43,7 @@ jobs:
         run: npm ci
 
       - name: Build (Next.js standalone)
+        # ビルド時に上記の env が使われます
         run: npm run build
 
       - name: Assemble deploy folder
@@ -45,14 +51,14 @@ jobs:
           set -e
           rm -rf deploy
           mkdir -p deploy/.next
-          # standalone 本体（server.js など）
+          # standalone 本体
           cp -r .next/standalone/* deploy/
-          # ★重要：standalone 配下の「.next の中身だけ」を deploy/.next 直下へ（※二重 .next を防ぐ）
+          # standalone 配下の .next の中身
           cp -r .next/standalone/.next/* deploy/.next/
           # static / public
           cp -r .next/static deploy/.next/static
           if [ -d "public" ]; then cp -r public deploy/public; fi
-          # App Service で npm start を実行するため package.json を同梱
+          # package.json
           cp package.json deploy/
 
       - name: Zip package
@@ -67,7 +73,7 @@ jobs:
           app-name: app-002-gen10-step3-1-node-oshima6
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           package: app.zip
-          clean: true
+          clean: true # ← clean: true を追加 (推奨)
 
       # （任意）デバッグ用：成果物を保存
       - name: Upload app.zip artifact
@@ -76,4 +82,3 @@ jobs:
         with:
           name: app-zip
           path: app.zip
-
