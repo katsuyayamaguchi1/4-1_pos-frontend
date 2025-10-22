@@ -45,10 +45,10 @@ jobs:
           set -e
           rm -rf deploy
           mkdir -p deploy/.next
-          # standalone 本体（ここだけだと .next が含まれないことがある）
+          # standalone 本体（server.js など）
           cp -r .next/standalone/* deploy/
-          # ★ 重要：standalone 配下の「隠し .next」を明示コピー（BUILD_ID 等）
-          cp -r .next/standalone/.next deploy/.next
+          # ★重要：standalone 配下の「.next の中身だけ」を deploy/.next 直下へ（※二重 .next を防ぐ）
+          cp -r .next/standalone/.next/* deploy/.next/
           # static / public
           cp -r .next/static deploy/.next/static
           if [ -d "public" ]; then cp -r public deploy/public; fi
